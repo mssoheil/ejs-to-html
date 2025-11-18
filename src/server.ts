@@ -9,12 +9,24 @@ export type DevServerOptions = {
   port?: number;
 };
 
+function getMimeType(filePath: string): string {
+  if (filePath.endsWith(".css")) return "text/css";
+  if (filePath.endsWith(".js")) return "application/javascript";
+  if (filePath.endsWith(".png")) return "image/png";
+  if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg"))
+    return "image/jpeg";
+  if (filePath.endsWith(".svg")) return "image/svg+xml";
+  if (filePath.endsWith(".woff")) return "font/woff";
+  if (filePath.endsWith(".woff2")) return "font/woff2";
+  return "application/octet-stream";
+}
+
 export function startDevServer(options: DevServerOptions): void {
   const templatePath = path.resolve(options.templatePath);
   const dataPath = options.dataPath
     ? path.resolve(options.dataPath)
     : undefined;
-  const port = options.port ?? 3000;
+  const port = options.port ?? 3111;
   const clients = new Set<http.ServerResponse>();
 
   const server = http.createServer((req, res) => {
@@ -44,6 +56,18 @@ export function startDevServer(options: DevServerOptions): void {
         const errorHtml = buildErrorHtml(stack);
         sendHtml(res, injectLiveReload(errorHtml), 500);
       }
+      return;
+    }
+
+    const publicDir = path.dirname(templatePath);
+    const filePath = path.join(publicDir, url);
+
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      const stream = fs.createReadStream(filePath);
+      res.statusCode = 200;
+      res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Content-Type", getMimeType(filePath));
+      stream.pipe(res);
       return;
     }
 
@@ -174,7 +198,7 @@ function broadcastReload(clients: Set<http.ServerResponse>): void {
     try {
       res.write("data: reload\n\n");
     } catch {
-      // ignore broken connections
+      // ignore
     }
   }
 }
