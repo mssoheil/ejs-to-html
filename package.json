@@ -1,0 +1,32 @@
+{
+  "name": "ejs-to-html",
+  "version": "0.1.0",
+  "description": "A tiny dev server that renders EJS templates with live reload, without touching the original .ejs file.",
+  "main": "dist/cli.js",
+  "bin": {
+    "ejs-to-html": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli.js --template example/template.ejs --data example/data.json",
+    "dev": "ts-node src/cli.ts --template example/template.ejs --data example/data.json"
+  },
+  "keywords": [
+    "ejs",
+    "live-reload",
+    "dev-server",
+    "template",
+    "html"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^3.1.9"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/node": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.0"
+  }
+}
